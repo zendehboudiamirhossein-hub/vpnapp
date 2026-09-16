@@ -210,7 +210,6 @@ fun HomeScreen(
                     }
                     if (errorText != null) ErrorCard(errorText)
                     Spacer(Modifier.weight(1f))
-                    Footer()
                 }
             }
         }
@@ -254,8 +253,6 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
                     Text("چوچول VPN", style = MaterialTheme.typography.headlineSmall)
                     Text("نسخه ${BuildConfig.VERSION_NAME}", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(16.dp))
-                    Text("طراحی و توسعه: امید", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(18.dp))
                     Button(onClick = { showAbout = false }, modifier = Modifier.fillMaxWidth()) { Text("بستن") }
                 }
@@ -546,12 +543,6 @@ private fun ErrorCard(text: String) {
             }
         }
     }
-}
-
-@Composable
-private fun Footer() {
-    Text("طراحی و توسعه: امید", style = MaterialTheme.typography.labelMedium, color = Color(0xFF78859A))
-    Spacer(Modifier.height(4.dp))
 }
 
 @Composable
