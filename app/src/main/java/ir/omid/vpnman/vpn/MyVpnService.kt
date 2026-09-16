@@ -64,7 +64,10 @@ class MyVpnService : VpnService() {
             val xrayConfig = XrayConfigFactory.build(rawConfig)
             val builder = Builder()
                 .setSession("چوچول VPN")
-                .setMtu(1500)
+                // 1500 collides with real path MTU once VLESS/WS/TLS overhead is added,
+                // so large packets (big TLS ClientHellos, HTTP/2 browser traffic) get
+                // silently dropped/fragmented while small app requests still pass.
+                .setMtu(1400)
                 .addAddress("10.88.0.2", 30)
                 .addRoute("0.0.0.0", 0)
                 .addDnsServer("1.1.1.1")
@@ -72,11 +75,13 @@ class MyVpnService : VpnService() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) builder.setBlocking(true)
 
-            runCatching {
-                builder.addAddress("fd42:4242:4242::2", 64)
-                builder.addRoute("::", 0)
-                builder.addDnsServer("2606:4700:4700::1111")
-            }
+            // NOTE: IPv6 tunneling intentionally left out. addAddress()/addRoute() for
+            // IPv6 succeed even when the underlying mobile network has no real IPv6
+            // uplink (very common on Iranian carriers), which makes Android believe it
+            // has a working IPv6 route. Heavy IPv6-preferring clients (Chrome/Google,
+            // via Happy Eyeballs) then send traffic into that dead route and appear to
+            // "lose internet", while IPv4-only apps are unaffected. Re-enable only
+            // behind a setting once real IPv6 egress on the VPN server is confirmed.
 
             // Exclude this app UID so Xray's own upstream sockets never loop back into the VPN.
             runCatching { builder.addDisallowedApplication(packageName) }
